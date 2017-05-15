@@ -17,7 +17,8 @@ def upscale(image, scale):
     return cv2.resize(image, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
 
 def get_subsample(image, X, Y, scale=1):
-    return image[X[0]*scale:X[1]*scale, Y[0]*scale:Y[1]*scale]
+    # print(X[0]*scale, X[1]*scale, Y[0]*scale, Y[1]*scale)
+    return image[int(X[0]*scale):int(X[1]*scale), int(Y[0]*scale):int(Y[1]*scale)]
 
 def gray(image):
     return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

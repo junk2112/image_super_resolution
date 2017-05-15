@@ -1,6 +1,6 @@
 from common import *
-from scipy import spatial
 import sys
+from pyflann import *
 sys.setrecursionlimit(100000)
 
 class SuperResolutor:
@@ -13,7 +13,7 @@ class SuperResolutor:
             if isinstance(src, str):
                 self.src_image = cv2.imread(src)
                 print(type(self.src_image))
-            elif str(type(src)) == "<class 'numpy.ndarray'>":
+            elif str(type(src)) == "<class 'numpy.ndarray'>" or str(type(src)) == "<type 'numpy.ndarray'>":
                 self.src_image = src
             else:
                 raise Exception
@@ -74,14 +74,6 @@ class SuperResolutor:
         return result
 
     def scale(self, result_scale, is_show=False):
-        def find_replacements(patches):
-            result = []
-            for i, patch in enumerate(patches):
-                if not i % 1000:
-                    print(i, len(patches))
-                distance, index = tree.query([patch["descriptor"]])
-                result.append(LR_patches[index])
-            return result
         LR_set = self._gen_LR_set(self.src_image, result_scale*self.downscale_multiplier, self.LR_set_step)
         LR_patches = []
         for scale, image in LR_set.items():
@@ -90,10 +82,11 @@ class SuperResolutor:
         LR_patches = [item for item in LR_patches if len(item["descriptor"]) == self.patch_size**2 + 6]
         self.orig_patches = [item for item in self.orig_patches if len(item["descriptor"]) == self.patch_size**2 + 6]
 
-        tree = spatial.KDTree([item["descriptor"] for item in LR_patches])
-        print(len(self.orig_patches), "patches")
-        replace_to = find_replacements(self.orig_patches)
-        # replace_to = async(4, self.orig_patches, find_replacements, "patches")
+        dataset = np.asarray([np.asarray(item["descriptor"]) for item in LR_patches])
+        queryset = np.asarray([np.asarray(item["descriptor"]) for item in self.orig_patches])
+
+        replace_to, dist = FLANN().nn(dataset, queryset, 1, algorithm="kmeans")
+        replace_to = [LR_patches[i] for i in replace_to]
 
         for i, patch in enumerate(self.orig_patches):
             self.orig_patches[i]["replace_to"] = replace_to[i]
@@ -105,11 +98,11 @@ class SuperResolutor:
 
 if __name__ == '__main__':
     # path = "../datasets/Set14/image_SRF_2/img_013_SRF_2_LR.png"
-    # path = "../datasets/Urban100_SR/image_SRF_2/img_001_SRF_2_LR.png"
-    path = "../datasets/Set5/image_SRF_2/img_002_SRF_2_LR.png"
+    path = "../datasets/Urban100_SR/image_SRF_2/img_001_SRF_2_LR.png"
+    # path = "../datasets/Set5/image_SRF_2/img_002_SRF_2_LR.png"
     # "patch_size % patch_step == 0" should be True
     SuperResolutor(cv2.imread(path),
         LR_set_step=0.5,
         downscale_multiplier=1.5,
-        patch_size=6,
-        patch_step=2).scale(2, True)
+        patch_size=4,
+        patch_step=1).scale(2, True)
