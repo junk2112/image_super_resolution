@@ -79,8 +79,8 @@ class SuperResolutor:
         for scale, image in LR_set.items():
             LR_patches += self._crop(image, self.src_image, scale, self.patch_size)
 
-        LR_patches = [item for item in LR_patches if len(item["descriptor"]) == self.patch_size**2 + 6]
-        self.orig_patches = [item for item in self.orig_patches if len(item["descriptor"]) == self.patch_size**2 + 6]
+        LR_patches = [item for item in LR_patches if len(item["descriptor"]) == self.patch_size**2]
+        self.orig_patches = [item for item in self.orig_patches if len(item["descriptor"]) == self.patch_size**2]
 
         dataset = np.asarray([np.asarray(item["descriptor"]) for item in LR_patches])
         queryset = np.asarray([np.asarray(item["descriptor"]) for item in self.orig_patches])
