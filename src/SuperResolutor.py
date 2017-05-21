@@ -79,8 +79,8 @@ class SuperResolutor:
         for scale, image in LR_set.items():
             LR_patches += self._crop(image, self.src_image, scale, self.patch_size)
 
-        LR_patches = [item for item in LR_patches if len(item["descriptor"]) == self.patch_size**2]
-        self.orig_patches = [item for item in self.orig_patches if len(item["descriptor"]) == self.patch_size**2]
+        LR_patches = [item for item in LR_patches if len(item["descriptor"]) == self.patch_size**2 + 6]
+        self.orig_patches = [item for item in self.orig_patches if len(item["descriptor"]) == self.patch_size**2 + 6]
 
         dataset = np.asarray([np.asarray(item["descriptor"]) for item in LR_patches])
         queryset = np.asarray([np.asarray(item["descriptor"]) for item in self.orig_patches])
@@ -97,9 +97,11 @@ class SuperResolutor:
 
 
 if __name__ == '__main__':
-    # path = "../datasets/Set14/image_SRF_2/img_013_SRF_2_LR.png"
-    path = "../datasets/Urban100_SR/image_SRF_2/img_001_SRF_2_LR.png"
-    # path = "../datasets/Set5/image_SRF_2/img_002_SRF_2_LR.png"
+    path = "../samples/img_002_SRF_2_LR.png"
+    # path = "../samples/img_001_SRF_2_LR.png"
+    # path = "../samples/img_013_SRF_2_LR.png"
+    # path = "../samples/img_006_SRF_2_LR.png"
+
     # "patch_size % patch_step == 0" should be True
     SuperResolutor(cv2.imread(path),
         LR_set_step=0.5,

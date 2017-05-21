@@ -44,10 +44,10 @@ def image_to_tuple(image):
     if image.shape[0] not in kernels:
         kernels[image.shape[0]] = gkern(image.shape[0])
     for i, row in enumerate(gray(image)):
-        result += [item/255.0 for item, g in zip(list(row), kernels[image.shape[0]][i])]
-    # [means, stds] = cv2.meanStdDev(image)
-    # result += [item for item in list(means)]
-    # result += [item for item in list(stds)]
+        result += [item for item, g in zip(list(row), kernels[image.shape[0]][i])]
+    [means, stds] = cv2.meanStdDev(image)
+    result += [item for item in list(means)]
+    result += [item for item in list(stds)]
     return tuple(result)
 
 def replace(image, replace_data, x, y):

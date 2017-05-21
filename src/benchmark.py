@@ -26,14 +26,14 @@ def benchmark_one(path_LR, filename, patch_size, patch_step):
     cv2.imwrite("%s%s_%s_%d-%d.%s" % (result_folder, filename, "result", patch_size, patch_step, ext), result)
 
 data = [
-    # ("../datasets/Set5/image_SRF_2/img_002_SRF_2_LR.png", "bird"),
-    # ("../datasets/Urban100_SR/image_SRF_2/img_001_SRF_2_LR.png", "building"),
+    ("../datasets/Set5/image_SRF_2/img_002_SRF_2_LR.png", "bird"),
+    ("../datasets/Urban100_SR/image_SRF_2/img_001_SRF_2_LR.png", "building"),
     ("../datasets/Set14/image_SRF_2/img_013_SRF_2_LR.png", "scan"),
-    # ("../datasets/Urban100_SR/image_SRF_2/img_006_SRF_2_LR.png", "panel"),
+    ("../datasets/Urban100_SR/image_SRF_2/img_006_SRF_2_LR.png", "panel"),
 ]
 
 for path, name in data:
-    for size, step in [(8, 2), (8, 1)]:
+    for size, step in [(4, 1), (6, 1)]:
         print(name, size, step)
         benchmark_one(path, name, size, step)
 
