@@ -97,8 +97,8 @@ class SuperResolutor:
 
 
 if __name__ == '__main__':
-    path = "../samples/img_002_SRF_2_LR.png"
-    # path = "../samples/img_001_SRF_2_LR.png"
+    # path = "../samples/img_002_SRF_2_LR.png"
+    path = "../samples/img_001_SRF_2_LR.png"
     # path = "../samples/img_013_SRF_2_LR.png"
     # path = "../samples/img_006_SRF_2_LR.png"
 
