@@ -12,7 +12,7 @@ def show(images):
     cv2.waitKey(0)
 
 def downscale(image, scale):
-    return cv2.resize(image, None, fx=1/scale, fy=1/scale, interpolation=cv2.INTER_CUBIC)
+    return cv2.resize(image, None, fx=1/scale, fy=1/scale, interpolation=cv2.INTER_AREA)
 
 def upscale(image, scale):
     result = cv2.resize(image, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
@@ -45,9 +45,9 @@ def image_to_tuple(image):
         kernels[image.shape[0]] = gkern(image.shape[0])
     for i, row in enumerate(gray(image)):
         result += [item for item, g in zip(list(row), kernels[image.shape[0]][i])]
-    [means, stds] = cv2.meanStdDev(image)
-    result += [item for item in list(means)]
-    result += [item for item in list(stds)]
+    # [means, stds] = cv2.meanStdDev(image)
+    # result += [item for item in list(means)]
+    # result += [item for item in list(stds)]
     return tuple(result)
 
 def replace(image, replace_data, x, y):
@@ -59,7 +59,7 @@ def sum_part(image, replace_data, x, y, patch_step_del):
     step_x, step_y, _ = replace_data.shape
     if replace_data.shape != image[x:x+step_x, y:y+step_y].shape:
         return image
-    image[x:x+step_x, y:y+step_y] += replace_data//(patch_step_del**2)
+    image[x:x+step_x, y:y+step_y] += replace_data/(patch_step_del**2)
     return image
 
 def gauss(img, ksize, s):

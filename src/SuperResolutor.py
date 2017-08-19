@@ -30,8 +30,9 @@ class SuperResolutor:
         scale = 1 + LR_set_step
         while scale <= LR_set_max_scale:
             result[scale] = downscale(image, scale)
+            LR_set_step *= 2
             scale += LR_set_step
-        print(result.keys())
+        print(sorted(result.keys()))
         return result
 
     # def _get_sift_descriptor(self, image):
@@ -79,8 +80,8 @@ class SuperResolutor:
         for scale, image in LR_set.items():
             LR_patches += self._crop(image, self.src_image, scale, self.patch_size)
 
-        LR_patches = [item for item in LR_patches if len(item["descriptor"]) == self.patch_size**2 + 6]
-        self.orig_patches = [item for item in self.orig_patches if len(item["descriptor"]) == self.patch_size**2 + 6]
+        LR_patches = [item for item in LR_patches if len(item["descriptor"]) == self.patch_size**2]
+        self.orig_patches = [item for item in self.orig_patches if len(item["descriptor"]) == self.patch_size**2]
 
         dataset = np.asarray([np.asarray(item["descriptor"]) for item in LR_patches])
         queryset = np.asarray([np.asarray(item["descriptor"]) for item in self.orig_patches])
@@ -92,7 +93,9 @@ class SuperResolutor:
             self.orig_patches[i]["replace_to"] = replace_to[i]
         result = self._replace_parts(self.orig_patches, result_scale)
         if is_show:
-            show([self.src_image, upscale(self.src_image, result_scale), result])
+            upscaled = upscale(self.src_image, result_scale)
+            print(np.mean(upscaled), np.mean(result))
+            show(np.concatenate((upscaled, result), 1))
         return result
 
 
@@ -104,7 +107,7 @@ if __name__ == '__main__':
 
     # "patch_size % patch_step == 0" should be True
     SuperResolutor(cv2.imread(path),
-        LR_set_step=0.5,
-        downscale_multiplier=1.5,
+        LR_set_step=0.25,
+        downscale_multiplier=10,
         patch_size=4,
         patch_step=1).scale(2, True)
