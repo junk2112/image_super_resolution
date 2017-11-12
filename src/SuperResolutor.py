@@ -134,10 +134,10 @@ class SuperResolutor:
         upscaled = upscale(self.src_image, result_scale)
 
         # TODO: FIX THIS SHIT
-        print(PSNR.evaluate(result, upscaled))
-        # result[-1, 0:-1] = upscaled[-1, 0:-1]
-        # result[0:-1, -1] = upscaled[0:-1, -1]
         # print(PSNR.evaluate(result, upscaled))
+        result[-2:-1, 0:-1] = upscaled[-2:-1, 0:-1]
+        result[0:-1, -2:-1] = upscaled[0:-1, -2:-1]
+        print(PSNR.evaluate(result, upscaled))
 
         if is_show:
             # print(np.mean(upscaled), np.mean(result))

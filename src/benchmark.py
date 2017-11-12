@@ -56,12 +56,12 @@ def benchmark_one(path_LR, filename):
 
 data = [
     # ("../datasets/Set5/image_SRF_2/img_001_SRF_2_LR.png"),
-    ("../datasets/Set5/image_SRF_2/img_002_SRF_2_LR.png"),
+    # ("../datasets/Set5/image_SRF_2/img_002_SRF_2_LR.png"),
     # ("../datasets/Set5/image_SRF_2/img_003_SRF_2_LR.png"),
     # ("../datasets/Set5/image_SRF_2/img_004_SRF_2_LR.png"),
     # ("../datasets/Set5/image_SRF_2/img_005_SRF_2_LR.png"),
     # ("../datasets/Urban100_SR/image_SRF_2/img_001_SRF_2_LR.png"),
-    # ("../datasets/Urban100_SR/image_SRF_2/img_002_SRF_2_LR.png"),
+    ("../datasets/Urban100_SR/image_SRF_2/img_002_SRF_2_LR.png"),
     # ("../datasets/Urban100_SR/image_SRF_2/img_003_SRF_2_LR.png"),
     # ("../datasets/Urban100_SR/image_SRF_2/img_004_SRF_2_LR.png"),
     # ("../datasets/Urban100_SR/image_SRF_2/img_005_SRF_2_LR.png"),
@@ -74,5 +74,5 @@ data = [
 ]
 
 for i, path in enumerate(data):
-    name = "result_" + str(i)
+    name = "result_1"# + str(i)
     benchmark_one(path, name)

@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 from threading import Thread, Timer
 import scipy.stats as st
+from functools import reduce
 
 
 def show(images):
