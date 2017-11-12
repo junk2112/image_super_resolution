@@ -44,6 +44,7 @@ def gray(image):
 def gkern(kernlen, nsig=3):
     """Returns a 2D Gaussian kernel array."""
 
+    # return np.array([[1 for i in range(kernlen)] for j in range(kernlen)])
     interval = (2 * nsig + 1.) / (kernlen)
     x = np.linspace(-nsig - interval / 2., nsig + interval / 2., kernlen + 1)
     kern1d = np.diff(st.norm.cdf(x))
@@ -57,6 +58,9 @@ def image_to_tuple(image):
     result = []
     for color in np.transpose(image):
         result += reduce(lambda acc, x: list(acc) + list(x), color)
+    # add 3 means and 3 Standard Deviations
+    # in get_valid_patches add +6
+    # result += list(np.concatenate(cv2.meanStdDev(image)).flatten() * 50)
     return tuple(result)
 
 

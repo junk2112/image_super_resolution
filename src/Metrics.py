@@ -13,9 +13,16 @@ def check_sizes(f):
         return f(*args, **kwargs)
     return check
 
+
+class Metric:
+
+    def evaluate(image, source):
+        raise NotImplementedError()
+
+
 # Peak signal-to-noise ratio
 # https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio
-class PSNR:
+class PSNR(Metric):
 
     @staticmethod
     @check_sizes
@@ -31,7 +38,6 @@ class PSNR:
 
 if __name__ == "__main__":
     import cv2
-    img1 = cv2.imread("../results/result_0_HR.png")
-    img2 = cv2.imread("../results/result_0_result_3-0.1-0.5.png")
-    print(type(img1))
+    img1 = cv2.imread("../results/result_1/HR.png")
+    img2 = cv2.imread("../results/result_1/3-0.500-0.7_30.844.png")
     print(PSNR().evaluate(img1, img2))

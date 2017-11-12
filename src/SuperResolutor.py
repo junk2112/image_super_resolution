@@ -1,8 +1,13 @@
-from common import *
 import sys
-from pyflann import *
 import copy
+import os
+
+from pyflann import *
+
 from Metrics import PSNR
+from common import *
+
+
 sys.setrecursionlimit(100000)
 
 
@@ -60,7 +65,12 @@ class SuperResolutor:
                     "scale": scale,
                     "cropped": cropped,
                     "descriptor": image_to_tuple(cropped),
-                    "original": get_subsample(original, (i, i + self.patch_size), (j, j + self.patch_size), scale),
+                    "original": get_subsample(
+                        original, 
+                        (i, i + self.patch_size), 
+                        (j, j + self.patch_size), 
+                        scale,
+                    ),
                     "coords": (i, j)
                 })
         return result
@@ -81,7 +91,9 @@ class SuperResolutor:
                 else float(result_scale) / current_scale
             if current_scale != result_scale:
                 replacement = upscale(
-                    replacement, upscale_coefficient)
+                    replacement, 
+                    upscale_coefficient,
+                )
             if self.kernel is None:
                 s = replacement.shape[0]
                 self.kernel = gkern(s, self.kernel_sigma)
@@ -95,7 +107,7 @@ class SuperResolutor:
             x, y = patch["coords"]
             self._sum_part(result, intensity, replacement,
                            int(x * result_scale), int(y * result_scale))
-        result /= intensity
+        result =  np.round(result / intensity)
         return result.astype("uint8"), intensity
 
     def scale(self, result_scale, is_show=False):
@@ -108,7 +120,7 @@ class SuperResolutor:
         channels = self.src_image.shape[2] if len(
             self.src_image.shape) == 3 else 1
         get_valid_patches = lambda patches: [item for item in patches if len(
-            item["descriptor"]) == (self.patch_size**2) * channels]
+            item["descriptor"]) == self.patch_size**2 * channels]
 
         # get_invalid_patches = lambda patches: [item for item in patches if len(
         #     item["descriptor"]) != (self.patch_size**2) * channels]
@@ -128,7 +140,7 @@ class SuperResolutor:
 
         for i, patch in enumerate(self.orig_patches):
             self.orig_patches[i]["replace_to"] = replace_to[i]
-        result, intensity = self._replace_parts(
+        result, intensity_map = self._replace_parts(
             self.orig_patches, result_scale)
 
         upscaled = upscale(self.src_image, result_scale)
@@ -141,29 +153,36 @@ class SuperResolutor:
 
         if is_show:
             # print(np.mean(upscaled), np.mean(result))
-            intensity = (255 * intensity / np.max(intensity)).astype("int8")
-            # intensity[intensity == 0.0] = 255
-            # intensity[intensity != 255] = 0
+            intensity_map = (255 * intensity_map / np.max(intensity_map)).astype("int8")
+            # intensity_map[intensity_map == 0.0] = 255
+            # intensity_map[intensity_map != 255] = 0
             # s1 = cv2.Sobel(result,cv2.CV_8U,1,1,ksize=5)
             # s2 = cv2.Sobel(upscaled,cv2.CV_8U,1,1,ksize=5)
             show([
                 # np.concatenate((s1, s2, np.abs(s1 - s2)), 1),
-                intensity, np.concatenate((upscaled, result), 1)])
+                intensity_map, np.concatenate((upscaled, result), 1)])
         return result
 
 
 if __name__ == '__main__':
-    path = "../samples/img_002_SRF_2_LR.png"
+    # path = "../samples/img_002_SRF_2_LR.png"
     # path = "../samples/img_001_SRF_2_LR.png"
     # path = "../samples/img_013_SRF_2_LR.png"
     # path = "../samples/img_006_SRF_2_LR.png"
+    path = "../datasets/Urban100_SR/image_SRF_2/img_002_SRF_2_LR.png"
 
-    SuperResolutor(cv2.imread(path),
-                   LR_set_step=0.5,
-                   downscale_multiplier=20,
+    source = cv2.imread(path)
+    scale = 2
+    result = SuperResolutor(source,
+                   LR_set_step=0.7,
+                   downscale_multiplier=50,
                    patch_size=3,
                    patch_step=1,
-                   kernel_sigma=1).scale(2, True)
+                   kernel_sigma=0.7).scale(scale, False)
+
+    result_debug_path = '../results/debug/'
+    cv2.imwrite(os.path.join(result_debug_path, 'result.png'), result)
+    cv2.imwrite(os.path.join(result_debug_path, 'upscaled.png'), upscale(source, scale))
     # SuperResolutor(cv2.imread(path),
     #                LR_set_step=0.375,
     #                downscale_multiplier=20,
