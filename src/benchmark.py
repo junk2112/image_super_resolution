@@ -1,78 +1,68 @@
-from SuperResolutor import *
-from Metrics import PSNR
-import json
-from collections import OrderedDict
-import os
-
-path = "../datasets/Set14/image_SRF_2/img_013_SRF_2_LR.png"
-path = "../datasets/Urban100_SR/image_SRF_2/img_001_SRF_2_LR.png"
-path = "../datasets/Set5/image_SRF_2/img_002_SRF_2_LR.png"
-
-result_folder = "../results/"
+from src.SuperResolutor import *
 
 
-def benchmark_one(path_LR, filename):
-    scores = []
-    for patch_size in range(2, 7, 1):#[2]:
-        for set_step in [round(item/100.0, 3) for item in range(5, 55, 5)]:#[0.5]:
-            for sigma in [round(item/10.0, 3) for item in range(1, 31, 1)]:#[1,2]:
-                print(name, patch_size, set_step, sigma)
-                scale = int(path_LR.split("/")[3].split("_")[-1])
-                ext = path_LR.split(".")[-1]
-                path_HR = path_LR.replace("_LR.", "_HR.")
-                path_GL = path_LR.replace("_LR.", "_glasner.")
-                LR_image = cv2.imread(path_LR)
-                HR_image = cv2.imread(path_HR)
-                GL_image = cv2.imread(path_GL)  # glasner
-                BC_image = upscale(LR_image, scale)
-                result = SuperResolutor(LR_image,
-                                        LR_set_step=set_step,
-                                        downscale_multiplier=50,
-                                        patch_size=patch_size,
-                                        patch_step=1,
-                                        kernel_sigma=sigma).scale(scale)
-                cv2.imwrite("%s%s/%s_%.3f.%s" %
-                            (result_folder, filename, "galsner", PSNR.evaluate(HR_image, GL_image), ext), GL_image)
-                cv2.imwrite("%s%s/%s_%.3f.%s" %
-                            (result_folder, filename, "bicubic", PSNR.evaluate(HR_image, BC_image), ext), BC_image)
-                cv2.imwrite("%s%s/%s.%s" % (result_folder, filename, "HR", ext), HR_image)
-                score = PSNR.evaluate(HR_image, result)
-                rfname = "%s%s/%d-%.3f-%.1f_%.3f.%s" % (result_folder, filename,
-                                                        patch_size, set_step, sigma,
-                                                        score, ext)
-                scores.append(OrderedDict([
-                    ("name", rfname),
-                    ("score", score),
-                    ("set_step", set_step),
-                    ("sigma", sigma),
-                    ("patch_size", patch_size)
-                ]))
-                if not os.path.exists(result_folder + filename):
-                    os.makedirs(result_folder + filename)
-                cv2.imwrite(rfname, result)
-    scores = sorted(scores, key=lambda item: item["score"], reverse=True)
-    with open("{0}{1}/scores.json".format(result_folder, filename), "w") as f:
-        f.write(json.dumps(scores, indent=2))
+base = '/Users/andrew/git/image_super_resolution/datasets'
 
-data = [
-    # ("../datasets/Set5/image_SRF_2/img_001_SRF_2_LR.png"),
-    # ("../datasets/Set5/image_SRF_2/img_002_SRF_2_LR.png"),
-    # ("../datasets/Set5/image_SRF_2/img_003_SRF_2_LR.png"),
-    # ("../datasets/Set5/image_SRF_2/img_004_SRF_2_LR.png"),
-    # ("../datasets/Set5/image_SRF_2/img_005_SRF_2_LR.png"),
-    # ("../datasets/Urban100_SR/image_SRF_2/img_001_SRF_2_LR.png"),
-    ("../datasets/Urban100_SR/image_SRF_2/img_002_SRF_2_LR.png"),
-    # ("../datasets/Urban100_SR/image_SRF_2/img_003_SRF_2_LR.png"),
-    # ("../datasets/Urban100_SR/image_SRF_2/img_004_SRF_2_LR.png"),
-    # ("../datasets/Urban100_SR/image_SRF_2/img_005_SRF_2_LR.png"),
-    # ("../datasets/Urban100_SR/image_SRF_2/img_006_SRF_2_LR.png"),
-    # ("../datasets/Set14/image_SRF_2/img_001_SRF_2_LR.png"),
-    # ("../datasets/Set14/image_SRF_2/img_002_SRF_2_LR.png"),
-    # ("../datasets/Set14/image_SRF_2/img_003_SRF_2_LR.png"),
-    # ("../datasets/Set14/image_SRF_2/img_004_SRF_2_LR.png"),
-    # ("../datasets/Set14/image_SRF_2/img_013_SRF_2_LR.png"),
-]
+def benchmark(args):
+    i, path = args
+    print(i + 1, len(source_patches))
+    hr_path = path.replace('_LR', '_HR')
+    # kim_path = path.replace('_LR', '_Kim')
+    # glasner_path = path.replace('_LR', '_glasner')
+    # glasner_path = path.replace('_LR', '_our')
 
-for i, path in enumerate(data):
-    name = "result_1"# + str(i)
-    benchmark_one(path, name)
+    source = cv2.imread(path)
+    hr = cv2.imread(hr_path)
+    # kim = cv2.imread(kim_path)
+    # glasner = cv2.imread(glasner_path)
+
+    # result = SuperResolutor(
+    #     source,
+    #     LR_set_step=0.25,
+    #     downscale_multiplier=scale,
+    #     patch_size=3,
+    #     patch_step=1,
+    #     kernel_sigma=0.1,
+    #     dist_threshold_scale=4,
+    #     exp_scale=True,
+    # ).scale(scale, False)
+
+    return {
+        # 'kim': MetricAggregator.evaluate(kim, hr),
+        # 'glasner': MetricAggregator.evaluate(glasner, hr),
+        # 'my': MetricAggregator.evaluate(result, hr),
+        'bicubic': MetricAggregator.evaluate(upscale(source, scale), hr),
+    }
+# set_name = 'Urban100_SR'
+# set_name = 'BSD100_SR'
+set_name = 'SunHays80_SR'
+# set_name = 'Set5'
+# set_name = 'Set14'
+scales = [2, 3, 4, 8]
+printings = []
+
+for scale in scales:
+    data_path = base + '/{}/image_SRF_{}'.format(set_name, scale)
+    try:
+        source_patches = list_files(data_path, lambda item: '_LR' in item)
+    except:
+        continue
+
+    metrics = []
+    for i, path in enumerate(source_patches):
+        metrics.append(benchmark((i, path)))
+
+    # for method_name in ['kim', 'glasner', 'my', 'bicubic']:
+    for method_name in ['bicubic']:
+        method = [item[method_name] for item in metrics]
+        for metric_name in ['PSNR', 'SSIM', 'VIF']:
+            metric = [item[metric_name] for item in method]
+            printings.append((
+                set_name,
+                ', Scale: {}, '.format(scale),
+                method_name,
+                metric_name, '%.3f' % (sum(metric)/len(metric))
+            ))
+
+for p in printings:
+    print(*p)
